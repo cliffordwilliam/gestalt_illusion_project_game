@@ -1,0 +1,107 @@
+When you draw the non animated bg sprites, do not loop over each cell or item
+
+Just draw them once in a big surface then keep drawing that instead
+
+Or test if it is faster if you can draw each one but using a faster method than blit
+
+Then for the animated bg, instance an animated bg class than can be any animated bg, all it needs is region and duration anyways
+
+Then blit them to the layer they belong to after you draw all the static ones
+
+Not important but for the rect draw method, the state, when the cursor is to the left of start drag point, push the starting point to the right by 1 cell
+
+Then have the menu item render from top left to bottom instead
+
+At the very bottom add a space to display the currently hovered item name and type
+
+Then if there is no more space then allow it to be able to be scroll to the right and left
+
+Also add a bg selector for the selected stage number, Eg stage 1 has 3 bg to choose while stage 2 has only 1, so always display the most bottom bg
+
+So add bg data to json, like itsgion and scale x movement to camera or scale y
+
+Also do not forget to add the global stage to any selected stage, so I can place door, save and gates on any stage
+
+----
+
+On just press enter
+
+Ask for:
+
+name
+type
+layer
+
+then branch off
+
+for now if type is set to bitmask
+
+then get the tu for where cursor was
+
+and add that to a origin blob
+
+[16, 0, 16, 16],
+[32, 0, 16, 16],
+[48, 0, 16, 16],
+[64, 0, 16, 16],
+[80, 0, 16, 16],
+[96, 0, 16, 16],
+[112, 0, 16, 16],
+[128, 0, 16, 16],
+[144, 0, 16, 16],
+[160, 0, 16, 16],
+
+[16, 16, 16, 16],
+[32, 16, 16, 16],
+[48, 16, 16, 16],
+[64, 16, 16, 16],
+[80, 16, 16, 16],
+[96, 16, 16, 16],
+[112, 16, 16, 16],
+[128, 16, 16, 16],
+[144, 16, 16, 16],
+[160, 16, 16, 16],
+
+[16, 32, 16, 16],
+[32, 32, 16, 16],
+[48, 32, 16, 16],
+[64, 32, 16, 16],
+[80, 32, 16, 16],
+[96, 32, 16, 16],
+[112, 32, 16, 16],
+[128, 32, 16, 16],
+[144, 32, 16, 16],
+[160, 32, 16, 16],
+[480, 32, 16, 16],
+
+[16, 48, 16, 16],
+[32, 48, 16, 16],
+[48, 48, 16, 16],
+[64, 48, 16, 16],
+[80, 48, 16, 16],
+[96, 48, 16, 16],
+[112, 48, 16, 16],
+[128, 48, 16, 16],
+[144, 48, 16, 16],
+[160, 48, 16, 16],
+[480, 48, 16, 16],
+
+[80, 64, 16, 16],
+[96, 64, 16, 16],
+[112, 64, 16, 16],
+[128, 64, 16, 16],
+[144, 64, 16, 16]
+
+if type was bitmask related
+
+then ask if it mix
+
+When I save this, I should count the total layers first, then find the actor layer, collision_layer
+
+--------------
+
+Add a debugger drawer that anyone can call and set the layer of draw
+
+Then use that debugger to check if everything works fine, player to static collision + the quadtree
+
+Then make a new collision algo that uses raycast instead of looping per pixel per frame

@@ -1,0 +1,12 @@
+{
+  "burn": {
+    "is_loop": 1,
+    "next_animation": 0,
+    "frames_list": [
+      {
+        "region": [496, 224, 16, 16],
+        "duration": 50
+      }
+    ]
+  }
+}
