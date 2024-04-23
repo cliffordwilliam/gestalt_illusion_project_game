@@ -25,7 +25,7 @@ class JsonEditor:
         ).convert_alpha()
         self.sprite_sheet_rect = self.sprite_sheet_surface.get_rect()
 
-        self.offset = pg.math.Vector2(0.0, 0.0)
+        self.offset = Vector2(0.0, 0.0)
 
         self.camera = Camera(self.offset)
         self.camera.set_limit(self.sprite_sheet_rect)

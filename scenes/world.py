@@ -3,6 +3,7 @@ from nodes.camera import Camera
 from nodes.curtain import Curtain
 from nodes.room import Room
 from nodes.mini_map import MiniMap
+from nodes.inventory import Inventory
 from actors.player import Player
 
 
@@ -33,11 +34,14 @@ class World:
             self
         )
 
-        self.mini_map = MiniMap(self.player)
+        # Init mini map
+        self.mini_map = MiniMap("gameplay", self.player)
+
+        # Init inventory
+        self.inventory = Inventory(self, self.player, self.game)
 
         # TODO: read save file to see where to put the player
-        self.player.rect.x = 32
-        self.player.rect.y = 32
+        self.player.rect.midbottom = (10 * TILE_S, 9 * TILE_S)
 
         # Add player to quad tree in front of everyone, so that it will drawn in front
         self.room.quadtree.insert(self.player)
@@ -63,6 +67,9 @@ class World:
         # To remember which door after transition curtain
         self.next_door = None
 
+    def on_inventory_curtain_invisible(self):
+        self.set_state("playing")
+
     def on_player_hit_door(self, door):
         pass
 
@@ -87,11 +94,33 @@ class World:
             # Draw the mini map
             self.mini_map.draw()
 
+        # Gameplay state
+        if self.state == "pause":
+            # Draw room
+            self.room.draw()
+
+            # Draw the mini map
+            self.mini_map.draw()
+
+            # Draw inventory
+            self.inventory.draw()
+
     def update(self, dt):
         # Gameplay state
         if self.state == "playing":
+            # Prioritize pause input check
+            if self.game.is_pause_just_pressed:
+                self.set_state("pause")
+
             # Update all bg sprites actors, and moving actors
             self.room.update(dt)
+
+            # Update camera (must be here, after its target actor moved)
+            self.camera.update(dt)
+
+        elif self.state == "pause":
+            # On pause state, immediately update overlay curtain
+            self.inventory.update(dt)
 
     # Set state
     def set_state(self, value):
@@ -100,4 +129,14 @@ class World:
 
         # From playing
         if old_state == "playing":
-            pass
+            # To pause
+            if self.state == "pause":
+                # Tell pause inventory to activate  / fade in
+                self.inventory.activate()
+                pass
+
+        # From pause
+        if old_state == "pause":
+            # To playing
+            if self.state == "playing":
+                pass

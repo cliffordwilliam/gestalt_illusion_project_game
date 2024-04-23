@@ -23,21 +23,21 @@ class Curtain:
         self.max_alpha = 255
 
         # Curtain init
-        self.curtain = pg.Surface((NATIVE_W, NATIVE_H))
-        self.curtain.fill("black")
+        self.surface = pg.Surface((NATIVE_W, NATIVE_H))
+        self.surface.fill("black")
 
         # Direction
         self.direction = 0
 
         # Start invisible default
-        self.curtain.set_alpha(0)
+        self.surface.set_alpha(0)
         self.alpha = 0
         self.fade_duration = duration
         self.fade_timer = 0
 
         # Start opaque? Override values
         if self.start == "opaque":
-            self.curtain.set_alpha(self.max_alpha)
+            self.surface.set_alpha(self.max_alpha)
             self.alpha = self.max_alpha
             self.fade_duration = duration
             self.fade_timer = self.fade_duration
@@ -68,13 +68,13 @@ class Curtain:
 
     def reset(self):
         # Start invisible default
-        self.curtain.set_alpha(0)
+        self.surface.set_alpha(0)
         self.alpha = 0
         self.fade_timer = 0
 
         # Start opaque? Override values
         if self.start == "opaque":
-            self.curtain.set_alpha(self.max_alpha)
+            self.surface.set_alpha(self.max_alpha)
             self.alpha = self.max_alpha
             self.fade_timer = self.fade_duration
 
@@ -94,7 +94,7 @@ class Curtain:
             return
 
         # Draw transition curtain
-        NATIVE_SURF.blit(self.curtain, (0, 0))
+        NATIVE_SURF.blit(self.surface, (0, 0))
 
     def update(self, dt):
         # No need to update if invisible
@@ -123,7 +123,7 @@ class Curtain:
         self.remainder = lerp_alpha - self.alpha
 
         # Set alpha
-        self.curtain.set_alpha(self.alpha)
+        self.surface.set_alpha(self.alpha)
 
         # invisible end reched - 0 - invisible?
         if self.fade_timer == 0:

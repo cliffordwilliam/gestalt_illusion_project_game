@@ -117,7 +117,7 @@ class RoomEditor:
         self.sprites_len = len(self.sprites)
 
         # Move this
-        self.offset = pg.math.Vector2(0.0, 0.0)
+        self.offset = Vector2(0.0, 0.0)
 
         # Camera follows the offset
         self.camera = Camera(self.offset)

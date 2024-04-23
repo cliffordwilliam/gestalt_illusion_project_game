@@ -12,52 +12,29 @@ class MiniMap:
         1: This thing will draw the added room is rel pos to player pos
     '''
 
-    def __init__(self, player):
+    def __init__(self, state, player):
+        # Update the is inventory
+        self.state = state
+
         # Get player
         self.player = player
 
-        # TODO: Read save data and populate my rooms
+        # TODO: Have the world load save data, then pass to me, and I use it to set this
         self.rooms = []
         self.visited_rooms = set()
 
-        # Whole minimap topleft anchor, change this to move the entire thing
-        self.x = TILE_S * 0
-        self.y = TILE_S * 8
-
-        # Padding from left and bottom, update room top left
-        self.padding = TILE_S // 4
-        self.x += self.padding
-        self.y -= self.padding
-
-        # Set minimap size
-        self.w = TILE_S * 2
-        self.h = TILE_S * 2
-
-        # Determine where the center of the map is at to draw player icon
-        self.offset_x = (self.w // 2) + self.x
-        self.offset_y = (self.h // 2) + self.y
-        # To draw player since rect is 2 by 2, need to shift the tl by 1
-        self.offset_x_1 = self.offset_x
-        self.offset_y_1 = self.offset_y - 1
-
-        # Get the map other points, right and bottom
-        self.r = self.x + self.w
-        self.b = self.y + self.h
-
-        # Gameplay or menu mode
-        self.state = "gameplay"
-
-        # Drawn once in inventory entry, avoid looping when player is not moving anyways why for loop
-        self.inventory_surface = pg.Surface((NATIVE_W, NATIVE_H))
-
-    def set_state(self, value):
-        # Update the is inventory
-        self.state = value
+        # Imagine this like a sticker, where you draw on it first, then stick to native
+        self.mini_map_surface = pg.Surface((NATIVE_W, NATIVE_H))
+        self.mini_map_surface.set_colorkey("black")
+        self.mini_map_surface.fill("black")
 
         if self.state == "gameplay":
+            # Gameplay surface needs to be transparent
+            self.mini_map_surface.set_alpha(100)
+
             # Whole minimap topleft anchor, change this to move the entire thing
             self.x = TILE_S * 0
-            self.y = TILE_S * 9
+            self.y = TILE_S * 8
 
             # Padding from left and bottom, update room top left
             self.padding = TILE_S // 4
@@ -68,6 +45,10 @@ class MiniMap:
             self.w = TILE_S * 2
             self.h = TILE_S * 2
 
+            # Get the right and bottom
+            self.r = self.x + self.w
+            self.b = self.y + self.h
+
             # Determine where the center of the map is at to draw player icon
             self.offset_x = (self.w // 2) + self.x
             self.offset_y = (self.h // 2) + self.y
@@ -75,14 +56,7 @@ class MiniMap:
             self.offset_x_1 = self.offset_x
             self.offset_y_1 = self.offset_y - 1
 
-            # Get the map other points, right and bottom
-            self.r = self.x + self.w
-            self.b = self.y + self.h
-
         elif self.state == "inventory":
-            # Clear previous draw
-            self.inventory_surface.fill("black")
-
             # Inventory mode topleft
             self.x = TILE_S * 7
             self.y = TILE_S * 2
@@ -91,6 +65,10 @@ class MiniMap:
             self.w = TILE_S * 11
             self.h = TILE_S * 6
 
+            # Get the right and bottom
+            self.r = self.x + self.w
+            self.b = self.y + self.h
+
             # Determine where the center of the map is at to draw player icon
             self.offset_x = (self.w // 2) + self.x
             self.offset_y = (self.h // 2) + self.y
@@ -98,11 +76,16 @@ class MiniMap:
             self.offset_x_1 = self.offset_x
             self.offset_y_1 = self.offset_y - 1
 
-            # Get the map other points, right and bottom
-            self.r = self.x + self.w
-            self.b = self.y + self.h
+            # Draw here ONCE, then stick this to inventory curtain base surface
 
-            # Draw on the inventory page
+            # Draw the background on the sticker
+            pg.draw.rect(
+                self.mini_map_surface, "black", (
+                    self.x, self.y, self.w, self.h
+                )
+            )
+
+            # Get player pos
             player_x_tu = 0
             player_y_tu = 0
 
@@ -112,59 +95,71 @@ class MiniMap:
                 room_rect = data["rect"]
 
                 # Get room 4 points with the player offset and minimap position offset
-                x = room_rect[0] - (player_x_tu //
-                                    TILE_S) + self.offset_x
-                y = room_rect[1] - (player_y_tu //
-                                    TILE_S) + self.offset_y
+                x = room_rect[0] - (
+                    player_x_tu // TILE_S
+                ) + self.offset_x
+                y = room_rect[1] - (
+                    player_y_tu // TILE_S
+                ) + self.offset_y
                 r = x + room_rect[2]
                 b = y + room_rect[3]
 
                 # Ensure 4 rects points are in the minimap 4 points
-                x = max(self.x, min(x, self.r))
-                y = max(self.y, min(y, self.b))
-                r = max(self.x, min(r, self.r))
-                b = max(self.y, min(b, self.b))
+                x = clamp(x, self.x, self.r)
+                y = clamp(y, self.y, self.b)
+                r = clamp(r, self.x, self.r)
+                b = clamp(b, self.y, self.b)
 
                 # Compute the w and h for drawing
                 w = r - x
                 h = b - y
 
                 # Draw the room
-                pg.draw.rect(self.inventory_surface, "white", (x, y, w, h), 1)
+                pg.draw.rect(self.mini_map_surface, "white", (x, y, w, h), 1)
 
                 # Get the doors
                 for door in data["doors_pos"]:
                     # Get room 4 points with the player offset and minimap position offset
-                    x = door["xtu"] - (player_x_tu //
-                                       TILE_S) + self.offset_x
-                    y = door["ytu"] - \
-                        (player_y_tu // TILE_S) + self.offset_y
+                    x = door["xtu"] - (
+                        player_x_tu // TILE_S
+                    ) + self.offset_x
+                    y = door["ytu"] - (
+                        player_y_tu // TILE_S
+                    ) + self.offset_y
                     r = x + 1
                     b = y + 1
 
                     # Ensure 4 rects points are in the minimap 4 points
-                    x = max(self.x, min(x, self.r))
-                    y = max(self.y, min(y, self.b))
-                    r = max(self.x, min(r, self.r))
-                    b = max(self.y, min(b, self.b))
+                    x = clamp(x, self.x, self.r)
+                    y = clamp(y, self.y, self.b)
+                    r = clamp(r, self.x, self.r)
+                    b = clamp(b, self.y, self.b)
 
                     # Compute the w and h for drawing
                     w = r - x
                     h = b - y
 
                     # Draw the door
-                    pg.draw.rect(self.inventory_surface,
-                                 "black", (x, y, w, h), 1)
+                    pg.draw.rect(
+                        self.mini_map_surface,
+                        "black", (x, y, w, h), 1
+                    )
 
             # Draw the white frame
-            pg.draw.rect(self.inventory_surface, "white",
-                         (self.x, self.y, self.w, self.h), 1)
+            pg.draw.rect(
+                self.mini_map_surface, "white",
+                (self.x, self.y, self.w, self.h), 1
+            )
 
             # Inventory mode draw player rel to center offset
             player_x_tu = self.player.rect.center[0] // TILE_S + self.offset_x
             player_y_tu = self.player.rect.center[1] // TILE_S + self.offset_y
-            pg.draw.rect(self.inventory_surface, "red",
-                         (player_x_tu, player_y_tu, 2, 2))
+
+            # Draw center - represent player
+            pg.draw.rect(
+                self.mini_map_surface, "red",
+                (player_x_tu, player_y_tu, 1, 2)
+            )
 
     def add_room(self, data):
         room_name = data["name"]
@@ -178,15 +173,20 @@ class MiniMap:
             self.visited_rooms.add(room_name)
 
     def draw(self, surf=NATIVE_SURF):
-        # Draw the mini map background
-        pg.draw.rect(surf, "black", (self.x, self.y, self.w, self.h))
-
         # In inventory mode, no player offset
         if self.state == "inventory":
-            surf.blit(self.inventory_surface, (0, 0))
+            # Stick sticker to inventory base curtain
+            surf.blit(self.mini_map_surface, (0, 0))
 
         # In inventory mode, no player offset
         elif self.state == "gameplay":
+            # Draw the background on the sticker / Things are drawn within this thing so technically this is a clear
+            pg.draw.rect(
+                self.mini_map_surface, "black", (
+                    self.x, self.y, self.w, self.h
+                )
+            )
+
             # Get player pos
             player_x_tu = self.player.rect.center[0]
             player_y_tu = self.player.rect.center[1]
@@ -197,53 +197,67 @@ class MiniMap:
                 room_rect = data["rect"]
 
                 # Get room 4 points with the player offset and minimap position offset
-                x = room_rect[0] - (player_x_tu //
-                                    TILE_S) + self.offset_x
-                y = room_rect[1] - (player_y_tu //
-                                    TILE_S) + self.offset_y
+                x = room_rect[0] - (
+                    player_x_tu // TILE_S
+                ) + self.offset_x
+                y = room_rect[1] - (
+                    player_y_tu // TILE_S
+                ) + self.offset_y
                 r = x + room_rect[2]
                 b = y + room_rect[3]
 
                 # Ensure 4 rects points are in the minimap 4 points
-                x = max(self.x, min(x, self.r))
-                y = max(self.y, min(y, self.b))
-                r = max(self.x, min(r, self.r))
-                b = max(self.y, min(b, self.b))
+                x = clamp(x, self.x, self.r)
+                y = clamp(y, self.y, self.b)
+                r = clamp(r, self.x, self.r)
+                b = clamp(b, self.y, self.b)
 
                 # Compute the w and h for drawing
                 w = r - x
                 h = b - y
 
                 # Draw the room
-                pg.draw.rect(surf, "white", (x, y, w, h), 1)
+                pg.draw.rect(self.mini_map_surface, "white", (x, y, w, h), 1)
 
                 # Get the doors
                 for door in data["doors_pos"]:
                     # Get room 4 points with the player offset and minimap position offset
-                    x = door["xtu"] - (player_x_tu //
-                                       TILE_S) + self.offset_x
-                    y = door["ytu"] - \
-                        (player_y_tu // TILE_S) + self.offset_y
+                    x = door["xtu"] - (
+                        player_x_tu // TILE_S
+                    ) + self.offset_x
+                    y = door["ytu"] - (
+                        player_y_tu // TILE_S
+                    ) + self.offset_y
                     r = x + 1
                     b = y + 1
 
                     # Ensure 4 rects points are in the minimap 4 points
-                    x = max(self.x, min(x, self.r))
-                    y = max(self.y, min(y, self.b))
-                    r = max(self.x, min(r, self.r))
-                    b = max(self.y, min(b, self.b))
+                    x = clamp(x, self.x, self.r)
+                    y = clamp(y, self.y, self.b)
+                    r = clamp(r, self.x, self.r)
+                    b = clamp(b, self.y, self.b)
 
                     # Compute the w and h for drawing
                     w = r - x
                     h = b - y
 
                     # Draw the door
-                    pg.draw.rect(surf, "black", (x, y, w, h), 1)
+                    pg.draw.rect(
+                        self.mini_map_surface,
+                        "black", (x, y, w, h), 1
+                    )
 
             # Draw the white frame
-            pg.draw.rect(surf, "white",
-                         (self.x, self.y, self.w, self.h), 1)
+            pg.draw.rect(
+                self.mini_map_surface, "white",
+                (self.x, self.y, self.w, self.h), 1
+            )
 
             # Draw center - represent player
-            pg.draw.rect(surf, "red",
-                         (self.offset_x_1, self.offset_y_1, 1, 2))
+            pg.draw.rect(
+                self.mini_map_surface, "red",
+                (self.offset_x_1, self.offset_y_1, 1, 2)
+            )
+
+            # Stick the gameplay sirface to the native
+            NATIVE_SURF.blit(self.mini_map_surface, (0, 0))

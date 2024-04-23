@@ -83,6 +83,16 @@ class Room:
         self.w_tu = self.rect[2] // TILE_S
         self.h_tu = self.rect[3] // TILE_S
 
+        # Update the camera limit
+        self.camera.set_limit(
+            pg.Rect(
+                self.rect[0],
+                self.rect[1],
+                self.rect[2],
+                self.rect[3],
+            )
+        )
+
         # Room background names that it needs to draw
         self.desired_background_names = self.room_data["desired_background_names"]
 
@@ -138,6 +148,12 @@ class Room:
             # Collect actor to the quadtree
             self.quadtree.insert(instance)
 
+        # REMOVE IN BUILD
+        self.grid_surface = pg.Surface((NATIVE_W, NATIVE_H))
+        self.grid_surface.set_colorkey("black")
+        self.grid_surface.fill("black")
+        self.grid_surface.set_alpha(100)
+
     def add_room_to_mini_map(self, mini_map):
 
         # Prepare door container
@@ -162,6 +178,43 @@ class Room:
         mini_map.add_room(mini_map_data)
 
     def draw(self):
+        # Debug draw grid
+        if self.game.is_debug:
+            # Clear grid surf
+            self.grid_surface.fill("black")
+
+            # Draw new grid lines
+            for i in range(NATIVE_W_TU):
+                offset = TILE_S * i
+                xd = (offset - self.camera.rect.x) % NATIVE_W
+                yd = (offset - self.camera.rect.y) % NATIVE_H
+                pg.draw.line(
+                    self.grid_surface, "grey58", (xd, 0), (xd, NATIVE_H)
+                )
+                pg.draw.line(
+                    self.grid_surface, "grey58", (0, yd), (NATIVE_W, yd)
+                )
+            xd = -self.camera.rect.x % NATIVE_W
+            yd = -self.camera.rect.y % NATIVE_H
+            pg.draw.line(self.grid_surface, "grey66", (xd, 0), (xd, NATIVE_H))
+            pg.draw.line(self.grid_surface, "grey66", (0, yd), (NATIVE_W, yd))
+            FONT.render_to(
+                NATIVE_SURF, (xd + FONT_W, yd + FONT_H), f"{
+                    (int(self.camera.rect.x) - 1) // NATIVE_W + 1}{
+                    (int(self.camera.rect.y) - 1) // NATIVE_H + 1}", "grey100"
+            )
+
+            # Add to debug draw
+            self.game.debug_draw.add(
+                {
+                    "type": "surf",
+                    "layer": 0,
+                    "x": 0,
+                    "y": 0,
+                    "surf": self.grid_surface,
+                }
+            )
+
         # Draw the background
         self.background.draw()
 

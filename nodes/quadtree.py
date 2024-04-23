@@ -232,7 +232,7 @@ class QuadTree:
         game.debug_draw.add(
             {
                 "type": "text",
-                "layer": 3,
+                "layer": 4,
                 "x": text_rect.x,
                 "y": text_rect.y,
                 "text": f"actors: {len(self.actors)}"

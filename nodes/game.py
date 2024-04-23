@@ -12,6 +12,7 @@ class Game:
         # Game debug flag
         self.is_debug = False
 
+        # REMOVE IN BUILD, for everyone to use
         self.debug_draw = DebugDraw()
 
         # Game resolution and window

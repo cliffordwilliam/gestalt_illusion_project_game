@@ -41,6 +41,13 @@ class DebugDraw:
                         obj["width"],
                     )
 
+                # Rect?
+                if obj["type"] == "surf":
+                    NATIVE_SURF.blit(
+                        obj["surf"],
+                        (obj["x"], obj["y"]),
+                    )
+
         # Empty it
         self.layers = [
             [],

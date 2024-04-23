@@ -67,7 +67,7 @@ class Player:
         self.heavy_gravity = 0.001066
         self.gravity = self.normal_gravity
         self.jump_vel = -0.2330
-        self.velocity = pg.math.Vector2()
+        self.velocity = Vector2()
         self.pain_direction_from = self.direction
 
         # Kinematic
@@ -80,10 +80,10 @@ class Player:
         )
 
         # Camera anchor
-        self.camera_anchor = [
+        self.camera_anchor = Vector2(
             self.rect.center[0] + (self.facing_direction * TILE_S),
             self.rect.center[1]
-        ]
+        )
 
         # Set to false on next frame immediately after falling for 1 frame distance
         self.is_thin_fall = False
@@ -242,7 +242,7 @@ class Player:
             self.game.debug_draw.add(
                 {
                     "type": "text",
-                    "layer": 0,
+                    "layer": 3,
                     "x": x,
                     "y": y - FONT_H,
                     "text": f"state: {self.state}"
@@ -253,7 +253,7 @@ class Player:
             self.game.debug_draw.add(
                 {
                     "type": "text",
-                    "layer": 0,
+                    "layer": 3,
                     "x": x,
                     "y": y - (2 * FONT_H) - 1,
                     "text": f"face: {self.facing_direction}"
@@ -264,7 +264,7 @@ class Player:
             self.game.debug_draw.add(
                 {
                     "type": "text",
-                    "layer": 0,
+                    "layer": 3,
                     "x": x,
                     "y": y - (3 * FONT_H) - 2,
                     "text": f"wall: {self.kinematic.is_on_wall}"
@@ -275,7 +275,7 @@ class Player:
             self.game.debug_draw.add(
                 {
                     "type": "text",
-                    "layer": 0,
+                    "layer": 3,
                     "x": x,
                     "y": y - (4 * FONT_H) - 3,
                     "text": f"floor: {self.kinematic.is_on_floor}"
@@ -286,10 +286,21 @@ class Player:
             self.game.debug_draw.add(
                 {
                     "type": "text",
-                    "layer": 0,
+                    "layer": 3,
                     "x": x,
                     "y": y - (5 * FONT_H) - 4,
                     "text": f"invicible: {self.is_invincible}"
+                }
+            )
+
+            # Name?
+            self.game.debug_draw.add(
+                {
+                    "type": "text",
+                    "layer": 3,
+                    "x": x,
+                    "y": y - (6 * FONT_H) - 5,
+                    "text": f"name: {self.name}"
                 }
             )
 
