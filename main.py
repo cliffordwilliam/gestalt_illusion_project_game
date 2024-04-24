@@ -28,7 +28,7 @@ while 1:
     game.debug_draw.add(
         {
             "type": "text",
-            "layer": 5,
+            "layer": 6,
             "x": 0,
             "y": 0,
             "text": f"fps: {int(CLOCK.get_fps())}"

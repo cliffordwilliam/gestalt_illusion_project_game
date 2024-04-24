@@ -27,6 +27,7 @@ JSONS_PATHS = {
     "stage_1_room_editor.json": join(JSONS_DIR_PATH, "stage_1_room_editor.json"),
     "stage_2_room_editor.json": join(JSONS_DIR_PATH, "stage_2_room_editor.json"),
     "stage_1_bedroom_game.json": join(JSONS_DIR_PATH, "stage_1_bedroom_game.json"),
+    "stage_1_hallway_game.json": join(JSONS_DIR_PATH, "stage_1_hallway_game.json"),
 
     # STAGE 2 TEST REMOVE IN BUILD (DEL THE REAL JSON TOO)
     "stage_2_test_game.json": join(JSONS_DIR_PATH, "stage_2_test_game.json"),
@@ -141,3 +142,7 @@ MAX_QUADTREE_DEPTH = 8
 # For quick lookup, to avoid search tree recursion
 # Reset the book
 actor_to_quad = {}
+
+
+def reset_actor_to_quad():
+    actor_to_quad = {}

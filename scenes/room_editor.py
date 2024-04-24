@@ -352,6 +352,16 @@ class RoomEditor:
                     if self.selected_sprite["sprite_name"] != neighbour["sprite_name"]:
                         continue
 
+                # I do mix?
+                if self.selected_sprite["sprite_is_bitmask_mix"] == "yes":
+                    # Neighbour not bitmask?
+                    if neighbour["sprite_bitmask_type"] == "none":
+                        continue
+
+                    # Neighbour not mix?
+                    if neighbour["sprite_is_bitmask_mix"] == "no":
+                        continue
+
                 # Found! Tell my neighbour to update bitmask
                 if last == False:
                     self.update_bitmasks(
@@ -1349,7 +1359,7 @@ class RoomEditor:
                                             x_tu, y_tu, xds, yds
                                         )
 
-                        self.sound_manager.play_sound("cancel")
+                                    self.sound_manager.play_sound("cancel")
 
                 # Move camera
                 self.offset.x += (

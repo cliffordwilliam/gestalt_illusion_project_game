@@ -13,7 +13,7 @@ class World:
         self.game = game
 
         # Init camera
-        self.camera = Camera()
+        self.camera = Camera(game)
 
         # Init room
         # TODO: read save file to see which room to load
@@ -48,6 +48,7 @@ class World:
 
         # Whenever a room appear, call this to update the minimap
         self.room.add_room_to_mini_map(self.mini_map)
+        self.room.add_room_to_mini_map(self.inventory.mini_map)
 
         # Set camera target to player
         self.camera.set_target(self.player.camera_anchor)
@@ -68,19 +69,69 @@ class World:
         self.next_door = None
 
     def on_inventory_curtain_invisible(self):
+        # Reset curtain
+        self.curtain.reset()
+
+        # Go back to playing
         self.set_state("playing")
 
     def on_player_hit_door(self, door):
-        pass
+        # Only trigger once, do not call if alr in transition
+        if self.state != "transition":
+            # Remember this door to use after curtain reach opaque
+            self.next_door = door
+
+            # Exit to transition state
+            self.set_state("transition")
+
+            # Tell curtain go to opaque
+            self.curtain.go_to_opaque()
 
     def on_curtain_invisible(self):
-        pass
+        # Return to playing state
+        self.set_state("playing")
 
     def on_curtain_opaque(self):
-        pass
+        # Curtain fully closed, change the room
+
+        # Change room
+        self.change_room()
+
+        # Tell curtain to fade out
+        self.curtain.go_to_invisible()
 
     def change_room(self):
-        pass
+        # Change to new room
+        self.room.set_name(self.next_door["door_target"])
+
+        # Add player to quad tree in front of everyone, so that it will drawn in front
+        self.room.quadtree.insert(self.player)
+
+        # Whenever a room appear, call this to update the minimap, duplicate is impossible, they handle that
+        self.room.add_room_to_mini_map(self.mini_map)
+        self.room.add_room_to_mini_map(self.inventory.mini_map)
+
+        # Get door direction
+        door_direction = self.next_door["door_direction"]
+
+        # Based on door direction, update player and camera position
+        if door_direction == "left":
+            self.player.rect.right = (
+                self.room.rect[0] + self.room.rect[2]) - TILE_S
+            self.camera.rect.x -= NATIVE_W
+
+        elif door_direction == "right":
+            self.player.rect.left = self.room.rect[0] + TILE_S
+            self.camera.rect.x += NATIVE_W
+
+        elif door_direction == "up":
+            self.player.rect.bottom = (
+                self.room.rect[1] + self.room.rect[3]) - (2 * TILE_S)
+            self.camera.rect.y -= NATIVE_H
+
+        elif door_direction == "down":
+            self.player.rect.top = self.room.rect[1] + TILE_S
+            self.camera.rect.y += NATIVE_H
 
     def draw(self):
         # Clear canvas with hot pink, to see if there is a hole somewhere in case
@@ -94,8 +145,19 @@ class World:
             # Draw the mini map
             self.mini_map.draw()
 
+        # Transition state
+        elif self.state == "transition":
+            # Draw room
+            self.room.draw()
+
+            # Draw the mini map
+            self.mini_map.draw()
+
+            # Draw transition curtain
+            self.curtain.draw()
+
         # Gameplay state
-        if self.state == "pause":
+        elif self.state == "pause":
             # Draw room
             self.room.draw()
 
@@ -118,6 +180,10 @@ class World:
             # Update camera (must be here, after its target actor moved)
             self.camera.update(dt)
 
+        elif self.state == "transition":
+            # On transition state, immediately update transition curtain
+            self.curtain.update(dt)
+
         elif self.state == "pause":
             # On pause state, immediately update overlay curtain
             self.inventory.update(dt)
@@ -137,6 +203,12 @@ class World:
 
         # From pause
         if old_state == "pause":
+            # To playing
+            if self.state == "playing":
+                pass
+
+        # From transition
+        if old_state == "transition":
             # To playing
             if self.state == "playing":
                 pass

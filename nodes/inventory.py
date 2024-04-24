@@ -33,6 +33,13 @@ class Inventory:
     def activate(self):
         self.curtain.go_to_opaque()
 
+        # Need to redraw ONCE again with new plyaer pos and room
+        self.mini_map.redraw_inventory_mini_map()
+
+        # TODO: add pages for inventory, only clear when enter the map tab
+        # Clear the curtain from old map
+        self.curtain.surface.fill("black")
+
     # Caused by myself deactivate, tells world that I am done
     def on_curtain_invisible(self):
         # Overlay curtain is gone? Announce to world

@@ -8,6 +8,11 @@ class Background:
         self.stage_no = stage_no
         self.desired_background_names = desired_background_names
 
+    def update_prop(self, sprite_sheet, stage_no, desired_background_names):
+        self.sprite_sheet_surf = sprite_sheet
+        self.stage_no = stage_no
+        self.desired_background_names = desired_background_names
+
     def draw(self):
         # Stage 1 backgrounds
         if self.stage_no == 1:

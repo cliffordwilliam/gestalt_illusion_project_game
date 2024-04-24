@@ -2,7 +2,10 @@ from constants import *
 
 
 class Camera:
-    def __init__(self, target=None):
+    def __init__(self, game, target=None):
+        # Get game for debug draw
+        self.game = game
+
         self.rect = pg.FRect(0, 0, NATIVE_W, NATIVE_H)
         self.target = target
         self.lerp_weight = 0.01
@@ -71,3 +74,47 @@ class Camera:
             diff = abs(self.rect.y - target_y)
             if diff < 1:
                 self.rect.y = target_y
+
+        # Debug draw
+        if self.game.is_debug:
+            # Draw my center
+            x = (NATIVE_W // 2) - 1
+            y = (NATIVE_H // 2) - 1
+
+            self.game.debug_draw.add(
+                {
+                    "type": "line",
+                    "layer": 5,
+                    "start": (x, (NATIVE_H // 2) + 3),
+                    "end": (x, (NATIVE_H // 2) - 4),
+                    "color": "red",
+                    "width": 2
+                }
+            )
+
+            self.game.debug_draw.add(
+                {
+                    "type": "line",
+                    "layer": 5,
+                    "start": ((NATIVE_W // 2) + 3, y),
+                    "end": ((NATIVE_W // 2) - 4, y),
+                    "color": "red",
+                    "width": 2
+                }
+            )
+
+            # Draw target
+            target_center_x = target_x + (NATIVE_W // 2)
+            target_center_y = target_y + (NATIVE_H // 2)
+            x = target_center_x - self.rect.x
+            y = target_center_y - self.rect.y
+
+            self.game.debug_draw.add(
+                {
+                    "type": "circle",
+                    "layer": 5,
+                    "color": "yellow",
+                    "center": (x, y),
+                    "radius": 2
+                }
+            )

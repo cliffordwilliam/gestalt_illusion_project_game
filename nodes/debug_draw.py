@@ -11,6 +11,7 @@ class DebugDraw:
             [],
             [],
             [],
+            [],
         ]
 
     def add(self, obj):
@@ -42,6 +43,25 @@ class DebugDraw:
                     )
 
                 # Rect?
+                if obj["type"] == "line":
+                    pg.draw.line(
+                        NATIVE_SURF,
+                        obj["color"],
+                        obj["start"],
+                        obj["end"],
+                        obj["width"],
+                    )
+
+                # Rect?
+                if obj["type"] == "circle":
+                    pg.draw.circle(
+                        NATIVE_SURF,
+                        obj["color"],
+                        obj["center"],
+                        obj["radius"],
+                    )
+
+                # Rect?
                 if obj["type"] == "surf":
                     NATIVE_SURF.blit(
                         obj["surf"],
@@ -50,6 +70,7 @@ class DebugDraw:
 
         # Empty it
         self.layers = [
+            [],
             [],
             [],
             [],

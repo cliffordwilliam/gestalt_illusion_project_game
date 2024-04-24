@@ -154,6 +154,137 @@ class Room:
         self.grid_surface.fill("black")
         self.grid_surface.set_alpha(100)
 
+    def set_name(self, name):
+        # Get room name
+        self.name = name
+
+        # Room name -> read room data json
+        self.room_data = {}
+        with open(JSONS_PATHS[self.name], "r") as data:
+            self.room_data = load(data)
+
+        # Get the background layers
+        self.background_layers = self.room_data["background_layer"]
+
+        # Prepare to collect animation data for this stage
+        self.animation_data = {}
+
+        # Read each sprite in background layer
+        for layer in self.background_layers:
+            for sprite in layer:
+                # Find animated sprites?
+                if sprite != 0:
+                    if sprite["sprite_type"] == "animated_background":
+                        # Load the animation data for this sprite
+                        with open(
+                            JSONS_PATHS[
+                                f"{
+                                sprite["sprite_name"]
+                                }_animation.json"
+                            ], "r"
+                        ) as data:
+                            animation_data = load(data)
+
+                        # Collect it
+                        self.animation_data[
+                            sprite["sprite_name"]
+                        ] = animation_data
+
+        # Get the actor layer (enemies, goblins)
+        self.actor_layer = self.room_data["actor_layer"]
+
+        # Get the solid layer
+        self.collision_layer = self.room_data["solid_layer"]
+
+        # get the foreground layer
+        self.foreground_layers = self.room_data["foreground_layer"]
+
+        # Get the stage number
+        self.stage_no = self.room_data["stage_no"]
+
+        # Room rect, room camera limit
+        self.rect = self.room_data["room_rect"]
+        self.x_tu = self.rect[0] // TILE_S
+        self.y_tu = self.rect[1] // TILE_S
+        self.w_tu = self.rect[2] // TILE_S
+        self.h_tu = self.rect[3] // TILE_S
+
+        # Update the camera limit
+        self.camera.set_limit(
+            pg.Rect(
+                self.rect[0],
+                self.rect[1],
+                self.rect[2],
+                self.rect[3],
+            )
+        )
+
+        # Room background names that it needs to draw
+        self.desired_background_names = self.room_data["desired_background_names"]
+
+        # Only load new sprite sheet if it is different from what I have now
+        if self.room_data["sprite_sheet_name"] != self.sprite_sheet_png_name:
+
+            # Load this room sprite sheet
+            self.sprite_sheet_png_name = self.room_data["sprite_sheet_name"]
+            self.sprite_sheet_path = PNGS_PATHS[self.sprite_sheet_png_name]
+            self.sprite_sheet_surf = pg.image.load(
+                self.sprite_sheet_path
+            ).convert_alpha()
+
+        # Update the background drawer
+        self.background.update_prop(
+            self.sprite_sheet_surf,
+            self.stage_no,
+            self.desired_background_names
+        )
+
+        # Check if there are any actors in background_layers
+        for room in self.background_layers:
+            for sprite in room:
+                if sprite != 0:
+                    # Found?
+                    if sprite["sprite_type"] == "animated_background":
+                        # Add a new pair instance, value is the instance itself
+                        sprite["instance"] = self.game.actors[sprite["sprite_name"]](
+                            self.sprite_sheet_surf,
+                            self.animation_data[sprite["sprite_name"]],
+                            self.camera,
+                            sprite["xds"],
+                            sprite["yds"]
+                        )
+
+        # Reset the book
+        reset_actor_to_quad()
+
+        # Quadtree resize, as big as current room, FRect because kid size might be decimal
+        self.quadtree.set_rect(pg.FRect(self.rect))
+
+        # Read actor layer
+        for i in range(len(self.actor_layer)):
+            # Get the dict / obj
+            obj = self.actor_layer[i]
+
+            # Init the actor from game all actors list
+            instance = self.game.actors[obj["sprite_name"]](i)
+
+            # Set the instance position
+            instance.rect.x = obj["xds"]
+            instance.rect.y = obj["yds"]
+            instance.rect.y -= instance.rect.height - TILE_S
+
+            # Replace the dict / obj with the instance
+            self.actor_layer[i] = instance
+
+            # Collect actor to the quadtree
+            self.quadtree.insert(instance)
+
+        # REMOVE IN BUILD
+        self.grid_surface = pg.Surface((NATIVE_W, NATIVE_H))
+        self.grid_surface.set_colorkey("black")
+        self.grid_surface.fill("black")
+        self.grid_surface.set_alpha(100)
+
     def add_room_to_mini_map(self, mini_map):
 
         # Prepare door container
@@ -171,7 +302,8 @@ class Room:
         mini_map_data = {
             "name": self.name,
             "rect": [self.x_tu, self.y_tu, self.w_tu, self.h_tu],
-            "doors_pos": doors_pos
+            "doors_pos": doors_pos,
+            "stage_no": self.stage_no
         }
 
         # Add to mini map, it uses set, so dupplicates are impossible
@@ -290,16 +422,19 @@ class Room:
 
                     # Find something
                     if item != 0:
-                        # Turn this solid tile coord to draw coord
-                        xd = item["xds"] - self.camera.rect.x
-                        yd = item["yds"] - self.camera.rect.y
+                        # Its a door? Do not draw that
+                        if item["sprite_type"] != "door":
 
-                        # Draw this sprite with the draw coord
-                        NATIVE_SURF.blit(
-                            self.sprite_sheet_surf,
-                            (xd, yd),
-                            item["sprite_region"]
-                        )
+                            # Turn this solid tile coord to draw coord
+                            xd = item["xds"] - self.camera.rect.x
+                            yd = item["yds"] - self.camera.rect.y
+
+                            # Draw this sprite with the draw coord
+                            NATIVE_SURF.blit(
+                                self.sprite_sheet_surf,
+                                (xd, yd),
+                                item["sprite_region"]
+                            )
 
         # Handle each foreground_layers
         for layer in self.foreground_layers:
@@ -328,7 +463,7 @@ class Room:
 
                             # Draw this sprite with the draw coord
                             NATIVE_SURF.blit(
-                                self.sprite_sheet_surface,
+                                self.sprite_sheet_surf,
                                 (xd, yd),
                                 item["sprite_region"]
                             )
