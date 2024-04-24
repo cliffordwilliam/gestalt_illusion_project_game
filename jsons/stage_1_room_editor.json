@@ -876,8 +876,8 @@
     },
     {
       "sprite_name": "twin_goddess",
-      "sprite_layer": 13,
-      "sprite_type": "save",
+      "sprite_layer": 6,
+      "sprite_type": "background",
       "sprite_bitmask_type": "none",
       "sprite_region": [384, 512, 96, 80]
     },

@@ -105,3 +105,11 @@ Add a debugger drawer that anyone can call and set the layer of draw
 Then use that debugger to check if everything works fine, player to static collision + the quadtree
 
 Then make a new collision algo that uses raycast instead of looping per pixel per frame
+
+--------------
+
+Turn the save twin godess into an actor like a goblin
+
+Then it will check for player like goblin
+
+When player enter it, similar to goblin, goblin will enter attack state, but goddess will have a curtain like pop up that lerp up and fade in and out

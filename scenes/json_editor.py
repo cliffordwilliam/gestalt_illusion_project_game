@@ -426,7 +426,6 @@ class JsonEditor:
             "solid": "solid",
             "thin": "thin",
             "door": "door",
-            "save": "save",
             "actor": "actor",
             "cancel": "cancel",
         }
