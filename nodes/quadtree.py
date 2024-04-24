@@ -229,12 +229,14 @@ class QuadTree:
         # Draw how many actors I have
         text_rect = FONT.get_rect(f"actors: {len(self.actors)}")
         text_rect.center = self.rect.center
+        x = text_rect.x - camera.rect.x
+        y = text_rect.y - camera.rect.y
         game.debug_draw.add(
             {
                 "type": "text",
                 "layer": 4,
-                "x": text_rect.x,
-                "y": text_rect.y,
+                "x": x,
+                "y": y,
                 "text": f"actors: {len(self.actors)}"
             }
         )

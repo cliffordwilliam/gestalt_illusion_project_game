@@ -5,6 +5,7 @@ from scenes.world import World
 from nodes.audio_player import SoundManager
 from nodes.debug_draw import DebugDraw
 from actors.fire import Fire
+from actors.goblin import Goblin
 
 
 class Game:
@@ -79,7 +80,8 @@ class Game:
 
         # All game actors
         self.actors = {
-            "fire": Fire
+            "fire": Fire,
+            "goblin": Goblin
         }
 
         # All game scenes

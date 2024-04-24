@@ -20,7 +20,7 @@ class World:
         self.room = Room(
             self.game,
             self.camera,
-            "stage_1_bedroom_game.json"
+            "stage_1_bedroom_game.json",
 
             # STAGE 2 TEST REMOVE IN BUILD (DEL THE REAL JSON TOO)
             # "stage_2_test_game.json"

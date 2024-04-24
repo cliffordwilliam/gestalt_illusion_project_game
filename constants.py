@@ -16,6 +16,8 @@ PNGS_PATHS = {
     "player_sprite_sheet.png": join(PNGS_DIR_PATH, "player_sprite_sheet.png"),
     "stage_1_sprite_sheet.png": join(PNGS_DIR_PATH, "stage_1_sprite_sheet.png"),
     "stage_2_sprite_sheet.png": join(PNGS_DIR_PATH, "stage_2_sprite_sheet.png"),
+    "goblin_sprite_sheet.png": join(PNGS_DIR_PATH, "goblin_sprite_sheet.png"),
+    "goblin_flip_sprite_sheet.png": join(PNGS_DIR_PATH, "goblin_flip_sprite_sheet.png"),
 }
 
 # Jsons
@@ -23,6 +25,7 @@ JSONS_DIR_PATH = "jsons"
 JSONS_PATHS = {
     "fire_animation.json": join(JSONS_DIR_PATH, "fire_animation.json"),
     "big_flame_animation.json": join(JSONS_DIR_PATH, "big_flame_animation.json"),
+    "goblin_animation.json": join(JSONS_DIR_PATH, "goblin_animation.json"),
     "player_animation.json": join(JSONS_DIR_PATH, "player_animation.json"),
     "stage_1_room_editor.json": join(JSONS_DIR_PATH, "stage_1_room_editor.json"),
     "stage_2_room_editor.json": join(JSONS_DIR_PATH, "stage_2_room_editor.json"),

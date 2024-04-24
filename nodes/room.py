@@ -40,30 +40,6 @@ class Room:
         # Get the background layers
         self.background_layers = self.room_data["background_layer"]
 
-        # Prepare to collect animation data for this stage
-        self.animation_data = {}
-
-        # Read each sprite in background layer
-        for layer in self.background_layers:
-            for sprite in layer:
-                # Find animated sprites?
-                if sprite != 0:
-                    if sprite["sprite_type"] == "animated_background":
-                        # Load the animation data for this sprite
-                        with open(
-                            JSONS_PATHS[
-                                f"{
-                                sprite["sprite_name"]
-                                }_animation.json"
-                            ], "r"
-                        ) as data:
-                            animation_data = load(data)
-
-                        # Collect it
-                        self.animation_data[
-                            sprite["sprite_name"]
-                        ] = animation_data
-
         # Get the actor layer (enemies, goblins)
         self.actor_layer = self.room_data["actor_layer"]
 
@@ -75,6 +51,72 @@ class Room:
 
         # Get the stage number
         self.stage_no = self.room_data["stage_no"]
+
+        # Prepare to collect animation / actor surface data for this stage
+        self.animation_data = {}
+        self.actor_surfaces = {}
+
+        # Handle stage 1 animation data
+        if self.stage_no == 1:
+            # Load fire
+            with open(
+                JSONS_PATHS[
+                    f"{
+                    "fire"
+                    }_animation.json"
+                ], "r"
+            ) as data:
+                animation_data = load(data)
+
+            # Collect it
+            self.animation_data[
+                "fire"
+            ] = animation_data
+
+            # Load goblin
+            with open(
+                JSONS_PATHS[
+                    f"{
+                    "goblin"
+                    }_animation.json"
+                ], "r"
+            ) as data:
+                animation_data = load(data)
+
+            # Collect it
+            self.animation_data[
+                "goblin"
+            ] = animation_data
+
+            # Load goblin surface
+            with open(
+                PNGS_PATHS[
+                    f"{
+                    "goblin"
+                    }_sprite_sheet.png"
+                ], "r"
+            ) as data:
+                actor_surface = pg.image.load(data)
+
+            # Collect it
+            self.actor_surfaces[
+                "goblin"
+            ] = actor_surface
+
+            # Load goblin_flip surface
+            with open(
+                PNGS_PATHS[
+                    f"{
+                    "goblin_flip"
+                    }_sprite_sheet.png"
+                ], "r"
+            ) as data:
+                actor_surface = pg.image.load(data)
+
+            # Collect it
+            self.actor_surfaces[
+                "goblin_flip"
+            ] = actor_surface
 
         # Room rect, room camera limit
         self.rect = self.room_data["room_rect"]
@@ -135,12 +177,18 @@ class Room:
             obj = self.actor_layer[i]
 
             # Init the actor from game all actors list
-            instance = self.game.actors[obj["sprite_name"]](i)
-
-            # Set the instance position
-            instance.rect.x = obj["xds"]
-            instance.rect.y = obj["yds"]
-            instance.rect.y -= instance.rect.height - TILE_S
+            instance = self.game.actors[obj["sprite_name"]](
+                i,
+                self.actor_surfaces[obj["sprite_name"]],
+                self.actor_surfaces[f"{obj["sprite_name"]}_flip"],
+                self.animation_data[obj["sprite_name"]],
+                self.camera,
+                obj["xds"],
+                obj["yds"],
+                self.game,
+                self,
+                self.quadtree,
+            )
 
             # Replace the dict / obj with the instance
             self.actor_layer[i] = instance
@@ -165,30 +213,6 @@ class Room:
 
         # Get the background layers
         self.background_layers = self.room_data["background_layer"]
-
-        # Prepare to collect animation data for this stage
-        self.animation_data = {}
-
-        # Read each sprite in background layer
-        for layer in self.background_layers:
-            for sprite in layer:
-                # Find animated sprites?
-                if sprite != 0:
-                    if sprite["sprite_type"] == "animated_background":
-                        # Load the animation data for this sprite
-                        with open(
-                            JSONS_PATHS[
-                                f"{
-                                sprite["sprite_name"]
-                                }_animation.json"
-                            ], "r"
-                        ) as data:
-                            animation_data = load(data)
-
-                        # Collect it
-                        self.animation_data[
-                            sprite["sprite_name"]
-                        ] = animation_data
 
         # Get the actor layer (enemies, goblins)
         self.actor_layer = self.room_data["actor_layer"]
@@ -223,7 +247,7 @@ class Room:
         self.desired_background_names = self.room_data["desired_background_names"]
 
         # Only load new sprite sheet if it is different from what I have now
-        if self.room_data["sprite_sheet_name"] != self.sprite_sheet_png_name:
+        if self.room_data["stage_no"] != self.stage_no:
 
             # Load this room sprite sheet
             self.sprite_sheet_png_name = self.room_data["sprite_sheet_name"]
@@ -231,6 +255,68 @@ class Room:
             self.sprite_sheet_surf = pg.image.load(
                 self.sprite_sheet_path
             ).convert_alpha()
+
+            # Handle stage 1 animation data
+            if self.stage_no == 1:
+                # Load fire
+                with open(
+                    JSONS_PATHS[
+                        f"{
+                        "fire"
+                        }_animation.json"
+                    ], "r"
+                ) as data:
+                    animation_data = load(data)
+
+                # Collect it
+                self.animation_data[
+                    "fire"
+                ] = animation_data
+
+                # Load goblin
+                with open(
+                    JSONS_PATHS[
+                        f"{
+                        "goblin"
+                        }_animation.json"
+                    ], "r"
+                ) as data:
+                    animation_data = load(data)
+
+                # Collect it
+                self.animation_data[
+                    "goblin"
+                ] = animation_data
+
+                # Load goblin surface
+                with open(
+                    PNGS_PATHS[
+                        f"{
+                        "goblin"
+                        }_sprite_sheet.png"
+                    ], "r"
+                ) as data:
+                    actor_surface = pg.image.load(data)
+
+                # Collect it
+                self.actor_surfaces[
+                    "goblin"
+                ] = actor_surface
+
+                # Load goblin_flip surface
+                with open(
+                    PNGS_PATHS[
+                        f"{
+                        "goblin_flip"
+                        }_sprite_sheet.png"
+                    ], "r"
+                ) as data:
+                    actor_surface = pg.image.load(data)
+
+                # Collect it
+                self.actor_surfaces[
+                    "goblin_flip"
+                ] = actor_surface
 
         # Update the background drawer
         self.background.update_prop(
@@ -266,12 +352,18 @@ class Room:
             obj = self.actor_layer[i]
 
             # Init the actor from game all actors list
-            instance = self.game.actors[obj["sprite_name"]](i)
-
-            # Set the instance position
-            instance.rect.x = obj["xds"]
-            instance.rect.y = obj["yds"]
-            instance.rect.y -= instance.rect.height - TILE_S
+            instance = self.game.actors[obj["sprite_name"]](
+                i,
+                self.actor_surfaces[obj["sprite_name"]],
+                self.actor_surfaces[f"{obj["sprite_name"]}_flip"],
+                self.animation_data[obj["sprite_name"]],
+                self.camera,
+                obj["xds"],
+                obj["yds"],
+                self.game,
+                self,
+                self.quadtree
+            )
 
             # Replace the dict / obj with the instance
             self.actor_layer[i] = instance
