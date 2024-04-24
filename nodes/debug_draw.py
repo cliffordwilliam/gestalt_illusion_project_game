@@ -34,7 +34,7 @@ class DebugDraw:
                     )
 
                 # Rect?
-                if obj["type"] == "rect":
+                elif obj["type"] == "rect":
                     pg.draw.rect(
                         NATIVE_SURF,
                         obj["color"],
@@ -43,7 +43,7 @@ class DebugDraw:
                     )
 
                 # Rect?
-                if obj["type"] == "line":
+                elif obj["type"] == "line":
                     pg.draw.line(
                         NATIVE_SURF,
                         obj["color"],
@@ -53,7 +53,7 @@ class DebugDraw:
                     )
 
                 # Rect?
-                if obj["type"] == "circle":
+                elif obj["type"] == "circle":
                     pg.draw.circle(
                         NATIVE_SURF,
                         obj["color"],
@@ -62,7 +62,7 @@ class DebugDraw:
                     )
 
                 # Rect?
-                if obj["type"] == "surf":
+                elif obj["type"] == "surf":
                     NATIVE_SURF.blit(
                         obj["surf"],
                         (obj["x"], obj["y"]),

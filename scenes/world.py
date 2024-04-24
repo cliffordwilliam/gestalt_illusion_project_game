@@ -13,7 +13,7 @@ class World:
         self.game = game
 
         # Init camera
-        self.camera = Camera(game)
+        self.camera = Camera(game = game)
 
         # Init room
         # TODO: read save file to see which room to load
