@@ -43,6 +43,9 @@ class World:
         # TODO: read save file to see where to put the player
         self.player.rect.midbottom = (10 * TILE_S, 9 * TILE_S)
 
+        # Inject player dependency to the room
+        self.room.set_player(self.player)
+
         # Add player to quad tree in front of everyone, so that it will drawn in front
         self.room.quadtree.insert(self.player)
 

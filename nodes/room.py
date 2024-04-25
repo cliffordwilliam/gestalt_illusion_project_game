@@ -23,6 +23,9 @@ class Room:
     '''
 
     def __init__(self, game, camera, name):
+        # Player to be injected
+        self.player = None
+
         # Get game
         self.game = game
 
@@ -171,6 +174,16 @@ class Room:
         # Quadtree init, as big as current room, FRect because kid size might be decimal
         self.quadtree = QuadTree(pg.FRect(self.rect), self)
 
+        # REMOVE IN BUILD
+        self.grid_surface = pg.Surface((NATIVE_W, NATIVE_H))
+        self.grid_surface.set_colorkey("black")
+        self.grid_surface.fill("black")
+        self.grid_surface.set_alpha(100)
+
+    def set_player(self, value):
+        # Get player
+        self.player = value
+
         # Read actor layer
         for i in range(len(self.actor_layer)):
             # Get the dict / obj
@@ -188,6 +201,7 @@ class Room:
                 self.game,
                 self,
                 self.quadtree,
+                self.player
             )
 
             # Replace the dict / obj with the instance
@@ -195,12 +209,6 @@ class Room:
 
             # Collect actor to the quadtree
             self.quadtree.insert(instance)
-
-        # REMOVE IN BUILD
-        self.grid_surface = pg.Surface((NATIVE_W, NATIVE_H))
-        self.grid_surface.set_colorkey("black")
-        self.grid_surface.fill("black")
-        self.grid_surface.set_alpha(100)
 
     def set_name(self, name):
         # Get room name
@@ -362,7 +370,8 @@ class Room:
                 obj["yds"],
                 self.game,
                 self,
-                self.quadtree
+                self.quadtree,
+                self.player
             )
 
             # Replace the dict / obj with the instance
