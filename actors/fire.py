@@ -8,7 +8,7 @@ class Fire:
         self.camera = camera
 
         # Name
-        self.name = "Fire"
+        self.name = "fire"
 
         # Parents load once and pass to me
         self.sprite_sheet = sprite_sheet

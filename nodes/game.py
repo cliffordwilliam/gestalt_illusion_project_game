@@ -6,6 +6,7 @@ from nodes.audio_player import SoundManager
 from nodes.debug_draw import DebugDraw
 from actors.fire import Fire
 from actors.goblin import Goblin
+from actors.twin_goddess import TwinGoddess
 
 
 class Game:
@@ -81,14 +82,15 @@ class Game:
         # All game actors
         self.actors = {
             "fire": Fire,
-            "goblin": Goblin
+            "goblin": Goblin,
+            "twin_goddess": TwinGoddess,
         }
 
         # All game scenes
         self.scenes = {
             "JsonEditor": JsonEditor,
             "RoomEditor": RoomEditor,
-            "World": World
+            "World": World,
         }
 
         # Game sound manager

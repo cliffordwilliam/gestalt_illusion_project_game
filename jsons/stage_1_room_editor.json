@@ -876,10 +876,10 @@
     },
     {
       "sprite_name": "twin_goddess",
-      "sprite_layer": 6,
-      "sprite_type": "background",
+      "sprite_layer": 12,
+      "sprite_type": "actor",
       "sprite_bitmask_type": "none",
-      "sprite_region": [384, 512, 96, 80]
+      "sprite_region": [384, 512, 16, 16]
     },
     {
       "sprite_name": "wooden_door",

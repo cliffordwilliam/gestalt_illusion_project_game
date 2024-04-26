@@ -5,7 +5,7 @@ from nodes.timer import Timer
 
 
 class Goblin:
-    def __init__(self, id, sprite_sheet, sprite_sheet_flip, animation_data, camera, xds, yds, game, room, quadtree, player):
+    def __init__(self, id, sprite_sheet, sprite_sheet_flip, animation_data, camera, xds, yds, game, room, quadtree, player, sprite_region):
         # Get player
         self.player = player
 
@@ -25,7 +25,7 @@ class Goblin:
         self.id = id
 
         # Name
-        self.name = "Goblin"
+        self.name = "goblin"
 
         # Parents load once and pass to me
         self.sprite_sheet = sprite_sheet
@@ -44,8 +44,10 @@ class Goblin:
 
         # Rect
         self.rect = pg.FRect(0, 0, 6, 31)
-        self.rect.midbottom = (xds + (TILE_S // 2), yds + TILE_S)
-        # self.rect.y -= self.rect.height - TILE_S
+        self.rect.midbottom = (
+            xds,
+            yds + TILE_S
+        )
 
         # State
         self.state = "idle"
@@ -77,8 +79,14 @@ class Goblin:
         # Timer to toggle between idle and run
         self.idle_timer = Timer(2000)
         self.run_timer = Timer(4000)
-        self.idle_timer.add_event_listener(self.on_idle_timer_end, "timer_end")
-        self.run_timer.add_event_listener(self.on_run_timer_end, "timer_end")
+        self.idle_timer.add_event_listener(
+            self.on_idle_timer_end,
+            "timer_end"
+        )
+        self.run_timer.add_event_listener(
+            self.on_run_timer_end,
+            "timer_end"
+        )
 
         # For indicating the sprite flip or not, easier to read
         self.facing_direction = 1
@@ -106,6 +114,7 @@ class Goblin:
                     if rel_player_pos < 0:
                         # Update sprite sheet to flip (this will determine dir input for vel in run entry)
                         self.current_sprite_sheet = self.sprite_sheet_flip
+                        self.facing_direction = -1
 
                 # I am facing left?
                 elif self.current_sprite_sheet == self.sprite_sheet_flip:
@@ -113,6 +122,7 @@ class Goblin:
                     if rel_player_pos > 0:
                         # Update sprite sheet to normal (this will determine dir input for vel in run entry)
                         self.current_sprite_sheet = self.sprite_sheet
+                        self.facing_direction = 1
 
             # Replay the attack anim, stay in attack state
             self.animator.set_current_animation("attack")
@@ -250,14 +260,12 @@ class Goblin:
         # Update animation node
         self.animator.update(dt)
 
-        # region Update velocity with gravity
+        # Update velocity with gravity
         self.velocity.y += self.gravity * dt
         self.velocity.y = min(self.velocity.y, self.max_fall)
-        # endregion Update velocity with gravity
 
-        # region Update x velocity with direction
+        # Update x velocity with direction
         self.velocity.x = self.direction * self.max_run
-        # endregion Update x velocity with direction
 
         # Get old position
         old_position_x = self.rect.x
@@ -273,77 +281,87 @@ class Goblin:
         if self.current_sprite_sheet == self.sprite_sheet:
             self.hit_rect.midleft = self.rect.center
             self.hit_rect.y -= TILE_S
+
         elif self.current_sprite_sheet == self.sprite_sheet_flip:
             self.hit_rect.midright = self.rect.center
             self.hit_rect.y -= TILE_S
 
         # Idle
         if self.state == "idle":
+
+            # Exit logic first
+
+            # Exit to run are when timer runs out
             self.idle_timer.update(dt)
 
-            # Exit to run are taken care of timers
-
-            # Exit to attack
+            # Exit to attack if plyaer in aggro
             if self.player in self.quadtree.search(self.aggro_rect):
                 self.set_state("attack")
                 return
 
-            # In state logic
+            # Then state logic
 
         # Run
         elif self.state == "run":
+
+            # Exit logic first
+
+            # Exit to idle are when timer runs out
             self.run_timer.update(dt)
 
-            # Exit to idle are taken care of timers
-
-            # Exit to attack
+            # Exit to attack if plyaer in aggro
             if self.player in self.quadtree.search(self.aggro_rect):
                 self.set_state("attack")
                 return
 
-            # In state logic
-            # Walked off cliff?
+            # Then state logic
+
+            # Next frame rect is not on floor?
             if not self.kinematic.is_on_floor:
-                # Flip
+                # Flip direction
                 self.direction *= -1
 
-                # Update sprite to follow direction
+                # Update sprite to follow direction, flip or no flip
                 if self.direction == 1:
                     self.current_sprite_sheet = self.sprite_sheet
                     self.facing_direction = 1
+
                 elif self.direction == -1:
                     self.current_sprite_sheet = self.sprite_sheet_flip
                     self.facing_direction = -1
 
-                # Go back in time (before off floor is true), set current pos to prev frame pos
+                # Set rect to prev frame rect, where next frame is on floor
                 self.rect.x = old_position_x
                 self.rect.y = old_position_y
 
-            # Pressing against wall?
+            # Next frame rect is in wall?
             elif self.kinematic.is_on_wall:
                 # Flip direction
                 self.direction *= -1
 
-                # Update sprite to follow direction
+                # Update sprite to follow direction, flip or no flip
                 if self.direction == 1:
                     self.current_sprite_sheet = self.sprite_sheet
                     self.facing_direction = 1
+
                 elif self.direction == -1:
                     self.current_sprite_sheet = self.sprite_sheet_flip
                     self.facing_direction = -1
 
-                # Go back in time (before on wall is true), set current pos to prev frame pos
+                # Set rect to prev frame rect, where next frame is not in wall
                 self.rect.x = old_position_x + self.direction
                 self.rect.y = old_position_y
 
         # Idle
         elif self.state == "attack":
+            # Exit logic first
+
             # Exit to idle are taken care of animation end callback
 
-            # In state logic
+            # Then state logic
 
             # During active hit box frame
-            if self.animator.frame_index == 2 or self.animator.frame_index == 3:
+            if self.animator.frame_index in [2, 3]:
                 # Player inside it?
                 if self.hit_rect.colliderect(self.player):
 
@@ -351,6 +369,7 @@ class Goblin:
                     rel_player_pos = self.player.rect.center[0] - \
                         self.rect.center[0]
 
+                    # Set where is pain from
                     pain_direction_from = -1 if rel_player_pos < 0 else 1
 
                     # Call player hurt callback
@@ -363,15 +382,19 @@ class Goblin:
 
         # From idle
         if old_state == "idle":
+
             # To run
             if self.state == "run":
+                # Reset timer
                 self.run_timer.reset()
 
-                # Set direction input based on sprite sheet right now
                 # Use current sprite sheet to determine direction
                 if self.current_sprite_sheet == self.sprite_sheet:
+                    self.facing_direction = 1
                     self.direction = 1
+
                 elif self.current_sprite_sheet == self.sprite_sheet_flip:
+                    self.facing_direction = -1
                     self.direction = -1
 
                 # Play run animation
@@ -393,6 +416,7 @@ class Goblin:
                         if rel_player_pos < 0:
                             # Update sprite sheet to flip (this will determine dir input for vel in run entry)
                             self.current_sprite_sheet = self.sprite_sheet_flip
+                            self.facing_direction = -1
 
                     # I am facing left?
                     elif self.current_sprite_sheet == self.sprite_sheet_flip:
@@ -400,6 +424,7 @@ class Goblin:
                         if rel_player_pos > 0:
                             # Update sprite sheet to normal (this will determine dir input for vel in run entry)
                             self.current_sprite_sheet = self.sprite_sheet
+                            self.facing_direction = 1
 
                 # Set direction input to 0
                 self.direction = 0
@@ -435,6 +460,7 @@ class Goblin:
                         if rel_player_pos < 0:
                             # Update sprite sheet to flip (this will determine dir input for vel in run entry)
                             self.current_sprite_sheet = self.sprite_sheet_flip
+                            self.facing_direction = -1
 
                     # I am facing left?
                     elif self.current_sprite_sheet == self.sprite_sheet_flip:
@@ -442,6 +468,7 @@ class Goblin:
                         if rel_player_pos > 0:
                             # Update sprite sheet to normal (this will determine dir input for vel in run entry)
                             self.current_sprite_sheet = self.sprite_sheet
+                            self.facing_direction = 1
 
                 # Set direction input to 0
                 self.direction = 0
@@ -451,8 +478,10 @@ class Goblin:
 
         # From run
         elif old_state == "attack":
+
             # To idle
             if self.state == "idle":
+                # Reset idle timer
                 self.idle_timer.reset()
 
                 # Set direction input to 0

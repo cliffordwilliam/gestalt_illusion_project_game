@@ -18,7 +18,7 @@ class Player:
         self.id = -1
 
         # Name
-        self.name = "Player"
+        self.name = "player"
 
         # Player sprite sheets, flip or no flip
         self.sprite_sheet = pg.image.load(
@@ -313,7 +313,7 @@ class Player:
         self.velocity.y = min(self.velocity.y, self.max_fall)
 
         # Update x velocity with direction
-        self.velocity.x = pg.math.lerp(
+        self.velocity.x = lerp(
             self.velocity.x,
             self.direction * self.max_run,
             self.run_lerp_weight

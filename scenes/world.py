@@ -13,7 +13,7 @@ class World:
         self.game = game
 
         # Init camera
-        self.camera = Camera(game = game)
+        self.camera = Camera(game=game)
 
         # Init room
         # TODO: read save file to see which room to load
@@ -72,9 +72,6 @@ class World:
         self.next_door = None
 
     def on_inventory_curtain_invisible(self):
-        # Reset curtain
-        self.curtain.reset()
-
         # Go back to playing
         self.set_state("playing")
 

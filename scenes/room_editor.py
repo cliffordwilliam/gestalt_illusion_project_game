@@ -707,8 +707,8 @@ class RoomEditor:
                         layer = self.layers_list[i]
 
                         # Actor layer?
-                        if i == self.actor_layer:
-                            # Remove zeroes, actors move so cannot use static grid lookup
+                        if i != self.solid_layer:
+                            # Remove zeroes, static grid lookup is for solid only
                             layer = [x for x in layer if x != 0]
 
                         # Remove uneeded things for ingame render
