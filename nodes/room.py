@@ -161,72 +161,72 @@ class Room:
             )
         )
 
-        # Stores animated backgrounds
-        self.animated_backgrounds = []
+        # # Stores animated backgrounds
+        # self.animated_backgrounds = []
 
-        # Pre draw the background, then blit with camera region
-        self.background_surface = pg.Surface(
-            (self.rect[2], self.rect[3])
-        )
-        self.background_surface.set_colorkey("black")
-        self.background_surface.fill("black")
+        # # Pre draw the background, then blit with camera region
+        # self.background_surface = pg.Surface(
+        #     (self.rect[2], self.rect[3])
+        # )
+        # self.background_surface.set_colorkey("black")
+        # self.background_surface.fill("black")
 
-        # Pre draw the foreground, then blit with camera region
-        self.foreground_surface = pg.Surface(
-            (self.rect[2], self.rect[3])
-        )
-        self.foreground_surface.set_colorkey("black")
-        self.foreground_surface.fill("black")
+        # # Pre draw the foreground, then blit with camera region
+        # self.foreground_surface = pg.Surface(
+        #     (self.rect[2], self.rect[3])
+        # )
+        # self.foreground_surface.set_colorkey("black")
+        # self.foreground_surface.fill("black")
 
-        for layer in self.background_layers:
-            for sprite in layer:
-                if sprite != 0:
-                    if sprite["sprite_type"] == "animated_background":
-                        self.animated_backgrounds.append(
-                            self.game.actors[sprite["sprite_name"]](
-                                self.sprite_sheet_surf,
-                                self.animation_data[sprite["sprite_name"]],
-                                self.camera,
-                                sprite["xds"],
-                                sprite["yds"]
-                            )
-                        )
-                        continue
+        # for layer in self.background_layers:
+        #     for sprite in layer:
+        #         if sprite != 0:
+        #             if sprite["sprite_type"] == "animated_background":
+        #                 self.animated_backgrounds.append(
+        #                     self.game.actors[sprite["sprite_name"]](
+        #                         self.sprite_sheet_surf,
+        #                         self.animation_data[sprite["sprite_name"]],
+        #                         self.camera,
+        #                         sprite["xds"],
+        #                         sprite["yds"]
+        #                     )
+        #                 )
+        #                 continue
 
-                    xd = sprite["xds"] - self.rect[0]
-                    yd = sprite["yds"] - self.rect[1]
+        #             xd = sprite["xds"] - self.rect[0]
+        #             yd = sprite["yds"] - self.rect[1]
 
-                    self.background_surface.blit(
-                        self.sprite_sheet_surf,
-                        (xd, yd),
-                        sprite["sprite_region"]
-                    )
+        #             self.background_surface.blit(
+        #                 self.sprite_sheet_surf,
+        #                 (xd, yd),
+        #                 sprite["sprite_region"]
+        #             )
 
-        # for layer in self.collision_surface:
-        for sprite in self.collision_layer:
-            if sprite != 0:
+        # # for layer in self.collision_surface:
+        # for sprite in self.collision_layer:
+        #     if sprite != 0:
 
-                xd = sprite["xds"] - self.rect[0]
-                yd = sprite["yds"] - self.rect[1]
+        #         xd = sprite["xds"] - self.rect[0]
+        #         yd = sprite["yds"] - self.rect[1]
 
-                self.foreground_surface.blit(
-                    self.sprite_sheet_surf,
-                    (xd, yd),
-                    sprite["sprite_region"]
-                )
+        #         self.foreground_surface.blit(
+        #             self.sprite_sheet_surf,
+        #             (xd, yd),
+        #             sprite["sprite_region"]
+        #         )
 
-        for layer in self.foreground_layers:
-            for sprite in layer:
-                if sprite != 0:
+        # for layer in self.foreground_layers:
+        #     for sprite in layer:
+        #         if sprite != 0:
 
-                    xd = sprite["xds"] - self.rect[0]
-                    yd = sprite["yds"] - self.rect[1]
+        #             xd = sprite["xds"] - self.rect[0]
+        #             yd = sprite["yds"] - self.rect[1]
 
-                    self.foreground_surface.blit(
-                        self.sprite_sheet_surf,
-                        (xd, yd),
-                        sprite["sprite_region"]
-                    )
+        #             self.foreground_surface.blit(
+        #                 self.sprite_sheet_surf,
+        #                 (xd, yd),
+        #                 sprite["sprite_region"]
+        #             )
 
         # Room background names that it needs to draw
         self.desired_background_names = self.room_data["desired_background_names"]
@@ -335,71 +335,86 @@ class Room:
             )
         )
 
-        # Stores animated backgrounds
-        self.animated_backgrounds = []
-
-        self.background_surface = pg.Surface(
-            (self.rect[2], self.rect[3])
-        )
-        self.background_surface.set_colorkey("black")
-        self.background_surface.fill("black")
-
-        # Pre draw the foreground, then blit with camera region
-        self.foreground_surface = pg.Surface(
-            (self.rect[2], self.rect[3])
-        )
-        self.foreground_surface.set_colorkey("black")
-        self.foreground_surface.fill("black")
-
-        for layer in self.background_layers:
-            for sprite in layer:
+        # Check if there are any actors in background_layers
+        for room in self.background_layers:
+            for sprite in room:
                 if sprite != 0:
+                    # Found?
                     if sprite["sprite_type"] == "animated_background":
-                        self.animated_backgrounds.append(
-                            self.game.actors[sprite["sprite_name"]](
-                                self.sprite_sheet_surf,
-                                self.animation_data[sprite["sprite_name"]],
-                                self.camera,
-                                sprite["xds"],
-                                sprite["yds"]
-                            )
+                        # Add a new pair instance, value is the instance itself
+                        sprite["instance"] = self.game.actors[sprite["sprite_name"]](
+                            self.sprite_sheet_surf,
+                            self.animation_data[sprite["sprite_name"]],
+                            self.camera,
+                            sprite["xds"],
+                            sprite["yds"]
                         )
-                        continue
 
-                    xd = sprite["xds"] - self.rect[0]
-                    yd = sprite["yds"] - self.rect[1]
+        # # Stores animated backgrounds
+        # self.animated_backgrounds = []
 
-                    self.background_surface.blit(
-                        self.sprite_sheet_surf,
-                        (xd, yd),
-                        sprite["sprite_region"]
-                    )
+        # self.background_surface = pg.Surface(
+        #     (self.rect[2], self.rect[3])
+        # )
+        # self.background_surface.set_colorkey("black")
+        # self.background_surface.fill("black")
 
-        # for layer in self.collision_surface:
-        for sprite in self.collision_layer:
-            if sprite != 0:
+        # # Pre draw the foreground, then blit with camera region
+        # self.foreground_surface = pg.Surface(
+        #     (self.rect[2], self.rect[3])
+        # )
+        # self.foreground_surface.set_colorkey("black")
+        # self.foreground_surface.fill("black")
 
-                xd = sprite["xds"] - self.rect[0]
-                yd = sprite["yds"] - self.rect[1]
+        # for layer in self.background_layers:
+        #     for sprite in layer:
+        #         if sprite != 0:
+        #             if sprite["sprite_type"] == "animated_background":
+        #                 self.animated_backgrounds.append(
+        #                     self.game.actors[sprite["sprite_name"]](
+        #                         self.sprite_sheet_surf,
+        #                         self.animation_data[sprite["sprite_name"]],
+        #                         self.camera,
+        #                         sprite["xds"],
+        #                         sprite["yds"]
+        #                     )
+        #                 )
+        #                 continue
 
-                self.foreground_surface.blit(
-                    self.sprite_sheet_surf,
-                    (xd, yd),
-                    sprite["sprite_region"]
-                )
+        #             xd = sprite["xds"] - self.rect[0]
+        #             yd = sprite["yds"] - self.rect[1]
 
-        for layer in self.foreground_layers:
-            for sprite in layer:
-                if sprite != 0:
+        #             self.background_surface.blit(
+        #                 self.sprite_sheet_surf,
+        #                 (xd, yd),
+        #                 sprite["sprite_region"]
+        #             )
 
-                    xd = sprite["xds"] - self.rect[0]
-                    yd = sprite["yds"] - self.rect[1]
+        # # for layer in self.collision_surface:
+        # for sprite in self.collision_layer:
+        #     if sprite != 0:
 
-                    self.foreground_surface.blit(
-                        self.sprite_sheet_surf,
-                        (xd, yd),
-                        sprite["sprite_region"]
-                    )
+        #         xd = sprite["xds"] - self.rect[0]
+        #         yd = sprite["yds"] - self.rect[1]
+
+        #         self.foreground_surface.blit(
+        #             self.sprite_sheet_surf,
+        #             (xd, yd),
+        #             sprite["sprite_region"]
+        #         )
+
+        # for layer in self.foreground_layers:
+        #     for sprite in layer:
+        #         if sprite != 0:
+
+        #             xd = sprite["xds"] - self.rect[0]
+        #             yd = sprite["yds"] - self.rect[1]
+
+        #             self.foreground_surface.blit(
+        #                 self.sprite_sheet_surf,
+        #                 (xd, yd),
+        #                 sprite["sprite_region"]
+        #             )
 
         # Room background names that it needs to draw
         self.desired_background_names = self.room_data["desired_background_names"]
@@ -603,52 +618,197 @@ class Room:
         # Draw the background
         self.background.draw()
 
-        relative_camera_to_room_x = self.camera.rect.x - self.rect[0]
-        relative_camera_to_room_y = self.camera.rect.y - self.rect[1]
+        # Turn camera coord into tu
+        cam_x_tu = self.camera.rect.x // TILE_S
+        cam_y_tu = self.camera.rect.y // TILE_S
 
-        NATIVE_SURF.blit(
-            self.background_surface,
-            (
-                0,
-                0,
-            ),
-            [
-                relative_camera_to_room_x,
-                relative_camera_to_room_y,
-                self.camera.rect.width,
-                self.camera.rect.height
-            ]
-        )
+        # Turn tu into index, by sub cam offset
+        cam_x_tu = int(cam_x_tu - self.x_tu)
+        cam_y_tu = int(cam_y_tu - self.y_tu)
 
-        for animated_background in self.animated_backgrounds:
-            animated_background.draw()
+        # Handle each background_layers
+        for layer in self.background_layers:
+            # Turn camera top left coord to index and the rest of the cells that is in camera
+            # Iterate over rows (camera width)
+            for row in range(NATIVE_H_TU_EXTRA_ONE):  # NATIVE_H_TU + 1
+                # Iterate over columns (camera height)
+                for col in range(NATIVE_W_TU_EXTRA_ONE):  # NATIVE_W_TU + 1
+                    # Compute index
+                    index = (
+                        cam_y_tu + row
+                    ) * self.w_tu + (
+                        cam_x_tu + col
+                    )
+
+                    # Makes sure its in index (because this iterates extra 1 to right and down of camera)
+                    if 0 <= index < len(layer):
+                        # Get item with index
+                        item = layer[index]
+
+                        # Find something?
+                        if item != 0:
+                            # Its an actor? let it draw itself
+                            if item["sprite_type"] == "animated_background":
+                                instance = item["instance"]
+                                instance.draw()
+                                continue
+
+                            # Not actor? turn the coord to draw coord
+                            xd = item["xds"] - self.camera.rect.x
+                            yd = item["yds"] - self.camera.rect.y
+
+                            # Draw this sprite with the draw coord
+                            NATIVE_SURF.blit(
+                                self.sprite_sheet_surf,
+                                (xd, yd),
+                                item["sprite_region"]
+                            )
+
+        # relative_camera_to_room_x = self.camera.rect.x - self.rect[0]
+        # relative_camera_to_room_y = self.camera.rect.y - self.rect[1]
+
+        # NATIVE_SURF.blit(
+        #     self.background_surface,
+        #     (
+        #         0,
+        #         0,
+        #     ),
+        #     [
+        #         relative_camera_to_room_x,
+        #         relative_camera_to_room_y,
+        #         self.camera.rect.width,
+        #         self.camera.rect.height
+        #     ]
+        # )
+
+        # for animated_background in self.animated_backgrounds:
+        #     animated_background.draw()
 
         # Handle each actor in camera
         for actor in self.quadtree.search(self.camera.rect):
             # Let the actor draw themselves
             actor.draw()
 
-        NATIVE_SURF.blit(
-            self.foreground_surface,
-            (
-                0,
-                0,
-            ),
-            [
-                relative_camera_to_room_x,
-                relative_camera_to_room_y,
-                self.camera.rect.width,
-                self.camera.rect.height
-            ]
-        )
+        # Turn camera top left coord to index and the rest of the cells that is in camera
+        # Iterate over rows (camera width)
+        for row in range(NATIVE_H_TU_EXTRA_ONE):  # NATIVE_H_TU + 1
+            # Iterate over columns (camera height)
+            for col in range(NATIVE_W_TU_EXTRA_ONE):  # NATIVE_W_TU + 1
+                # Compute index
+                index = (
+                    cam_y_tu + row
+                ) * self.w_tu + (
+                    cam_x_tu + col
+                )
+
+                # Makes sure its in index (because this iterates extra 1 to right and down of camera)
+                if 0 <= index < len(self.collision_layer):
+                    # Get item with index
+                    item = self.collision_layer[index]
+
+                    # Find something
+                    if item != 0:
+                        # Its a door? Do not draw that
+                        if item["sprite_type"] != "door":
+
+                            # Turn this solid tile coord to draw coord
+                            xd = item["xds"] - self.camera.rect.x
+                            yd = item["yds"] - self.camera.rect.y
+
+                            # Draw this sprite with the draw coord
+                            NATIVE_SURF.blit(
+                                self.sprite_sheet_surf,
+                                (xd, yd),
+                                item["sprite_region"]
+                            )
+
+        # Handle each foreground_layers
+        for layer in self.foreground_layers:
+            # Turn camera top left coord to index and the rest of the cells that is in camera
+            # Iterate over rows (camera width)
+            for row in range(NATIVE_H_TU_EXTRA_ONE):  # NATIVE_H_TU + 1
+                # Iterate over columns (camera height)
+                for col in range(NATIVE_W_TU_EXTRA_ONE):  # NATIVE_W_TU + 1
+                    # Compute index
+                    index = (
+                        cam_y_tu + row
+                    ) * self.w_tu + (
+                        cam_x_tu + col
+                    )
+
+                    # Makes sure its in index (because this iterates extra 1 to right and down of camera)
+                    if 0 <= index < len(layer):
+                        # Get item with index
+                        item = layer[index]
+
+                        # Find something
+                        if item != 0:
+                            # Turn this foreground tile coord to draw coord
+                            xd = item["xds"] - self.camera.rect.x
+                            yd = item["yds"] - self.camera.rect.y
+
+                            # Draw this sprite with the draw coord
+                            NATIVE_SURF.blit(
+                                self.sprite_sheet_surf,
+                                (xd, yd),
+                                item["sprite_region"]
+                            )
+
+        # NATIVE_SURF.blit(
+        #     self.foreground_surface,
+        #     (
+        #         0,
+        #         0,
+        #     ),
+        #     [
+        #         relative_camera_to_room_x,
+        #         relative_camera_to_room_y,
+        #         self.camera.rect.width,
+        #         self.camera.rect.height
+        #     ]
+        # )
 
         # Draw quadtree for debug
         if self.game.is_debug:
             self.quadtree.draw(self.game, self.camera)
 
     def update(self, dt):
-        for animated_background in self.animated_backgrounds:
-            animated_background.update(dt)
+        # Turn camera coord into tu
+        cam_x_tu = self.camera.rect.x // TILE_S
+        cam_y_tu = self.camera.rect.y // TILE_S
+
+        # Turn tu into index, by sub cam offset
+        cam_x_tu = int(cam_x_tu - self.x_tu)
+        cam_y_tu = int(cam_y_tu - self.y_tu)
+
+        # Handle each background_layers
+        for layer in self.background_layers:
+            # Turn camera top left coord to index and the rest of the cells that is in camera
+            # Iterate over rows (camera width)
+            for row in range(NATIVE_H_TU_EXTRA_ONE):  # NATIVE_H_TU + 1
+                # Iterate over columns (camera height)
+                for col in range(NATIVE_W_TU_EXTRA_ONE):  # NATIVE_W_TU + 1
+                    # Calculate index for the current tile
+                    # Compute index
+                    index = (
+                        cam_y_tu + row
+                    ) * self.w_tu + (
+                        cam_x_tu + col
+                    )
+
+                    # Makes sure its in index (because this iterates extra 1 to right and down of camera)
+                    if 0 <= index < len(layer):
+                        # Get item with index
+                        item = layer[index]
+
+                        # Find something
+                        if item != 0:
+                            # Found actor? let it update itself
+                            if item["sprite_type"] == "animated_background":
+                                instance = item["instance"]
+                                instance.update(dt)
+        # for animated_background in self.animated_backgrounds:
+        #     animated_background.update(dt)
 
         # Handle each actor in camera
         for actor in self.quadtree.search(self.camera.rect):

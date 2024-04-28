@@ -707,7 +707,7 @@ class RoomEditor:
                         layer = self.layers_list[i]
 
                         # Actor layer?
-                        if i != self.solid_layer:
+                        if i == self.actor_layer:
                             # Remove zeroes, static grid lookup is for solid only
                             layer = [x for x in layer if x != 0]
 
