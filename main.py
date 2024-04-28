@@ -1,21 +1,13 @@
 from constants import *
 from nodes.game import Game
-import time
-
-# Start time
-start_time = time.time()
 
 
 # game = Game("JsonEditor")
 # game = Game("RoomEditor")
 game = Game("World")
 
-# Your while loop code here
-# Elapsed time region draw:  16.579746961593628 seconds
-counter = 0
 # The Main loop
-while counter < 1000:
-    counter += 1
+while 1:
     # Fps limit and get dt
     dt = CLOCK.tick(FPS)
 
@@ -78,11 +70,4 @@ while counter < 1000:
 
     game.is_lmb_just_released = False
     game.is_rmb_just_released = False
-    game.is_mmb_just_released = False  # End time
-
-# End time
-end_time = time.time()
-
-# Calculate elapsed time
-elapsed_time = end_time - start_time
-print("Elapsed time region draw: ", elapsed_time, "seconds")
+    game.is_mmb_just_released = False
