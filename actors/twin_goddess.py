@@ -3,7 +3,10 @@ from nodes.popup import Popup
 
 
 class TwinGoddess:
-    def __init__(self, id, sprite_sheet, sprite_sheet_flip, animation_data, camera, xds, yds, game, room, quadtree, player, sprite_region):
+    def __init__(self, id, sprite_sheet, sprite_sheet_flip, animation_data, camera, xds, yds, game, room, quadtree, player, sprite_region, world):
+        # Get worlds
+        self.world = world
+
         # Get player
         self.player = player
 
@@ -124,6 +127,10 @@ class TwinGoddess:
                 self.set_state("looking")
 
             # Then state logic
+
+            # Player pressed up?
+            if self.game.is_up_just_pressed:
+                self.world.on_player_save(self)
 
         # Update curtain, this thing stops itself when it is done
         self.popup.update(dt)

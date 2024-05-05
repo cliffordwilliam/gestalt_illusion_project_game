@@ -5,7 +5,10 @@ from nodes.timer import Timer
 
 
 class Goblin:
-    def __init__(self, id, sprite_sheet, sprite_sheet_flip, animation_data, camera, xds, yds, game, room, quadtree, player, sprite_region):
+    def __init__(self, id, sprite_sheet, sprite_sheet_flip, animation_data, camera, xds, yds, game, room, quadtree, player, sprite_region, world):
+        # Get worlds
+        self.world = world
+
         # Get player
         self.player = player
 

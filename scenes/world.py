@@ -4,6 +4,7 @@ from nodes.curtain import Curtain
 from nodes.room import Room
 from nodes.mini_map import MiniMap
 from nodes.inventory import Inventory
+from nodes.save_menu import SaveMenu
 from actors.player import Player
 
 
@@ -18,6 +19,7 @@ class World:
         # Init room
         # TODO: read save file to see which room to load
         self.room = Room(
+            self,
             self.game,
             self.camera,
             "stage_1_bedroom_game.json",
@@ -39,6 +41,9 @@ class World:
 
         # Init inventory
         self.inventory = Inventory(self, self.player, self.game)
+
+        # Init inventory
+        self.save_menu = SaveMenu(self, self.player, self.game)
 
         # TODO: read save file to see where to put the player
         self.player.rect.midbottom = (10 * TILE_S, 9 * TILE_S)
@@ -71,7 +76,15 @@ class World:
         # To remember which door after transition curtain
         self.next_door = None
 
+    def on_player_save(self, twin_goddess):
+        self.set_state("save")
+        # print(twin_goddess.rect.midbottom)
+
     def on_inventory_curtain_invisible(self):
+        # Go back to playing
+        self.set_state("playing")
+
+    def on_save_menu_curtain_invisible(self):
         # Go back to playing
         self.set_state("playing")
 
@@ -167,6 +180,17 @@ class World:
             # Draw inventory
             self.inventory.draw()
 
+        # Gameplay state
+        elif self.state == "save":
+            # Draw room
+            self.room.draw()
+
+            # Draw the mini map
+            self.mini_map.draw()
+
+            # Draw inventory
+            self.save_menu.draw()
+
     def update(self, dt):
         # Gameplay state
         if self.state == "playing":
@@ -188,6 +212,10 @@ class World:
             # On pause state, immediately update overlay curtain
             self.inventory.update(dt)
 
+        elif self.state == "save":
+            # On pause state, immediately update overlay curtain
+            self.save_menu.update(dt)
+
     # Set state
     def set_state(self, value):
         old_state = self.state
@@ -199,6 +227,16 @@ class World:
             if self.state == "pause":
                 # Tell pause inventory to activate  / fade in
                 self.inventory.activate()
+
+            # To pause
+            elif self.state == "save":
+                # Tell pause inventory to activate  / fade in
+                self.save_menu.activate()
+
+        # From save
+        if old_state == "save":
+            # To playing
+            if self.state == "playing":
                 pass
 
         # From pause

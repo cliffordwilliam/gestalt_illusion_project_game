@@ -22,7 +22,9 @@ class Room:
         4: Collision layers may have actors, these will be moved to the draw update collision layer. Where stuffs are drawn and updated
     '''
 
-    def __init__(self, game, camera, name):
+    def __init__(self, world, game, camera, name):
+        self.world = world
+
         # Player to be injected
         self.player = None
 
@@ -218,7 +220,8 @@ class Room:
                 self,
                 self.quadtree,
                 self.player,
-                obj["sprite_region"]
+                obj["sprite_region"],
+                self.world
             )
 
             # Replace the dict / obj with the instance
@@ -405,7 +408,8 @@ class Room:
                 self,
                 self.quadtree,
                 self.player,
-                obj["sprite_region"]
+                obj["sprite_region"],
+                self.world
             )
 
             # Replace the dict / obj with the instance
